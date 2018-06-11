@@ -1,2 +1,2 @@
 # Udacity-DSND
-Including Projects.
+Collection of Projects of Udacity Data Scientist Nanodegree.
