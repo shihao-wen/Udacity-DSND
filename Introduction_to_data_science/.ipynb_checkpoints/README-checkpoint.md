@@ -20,7 +20,7 @@ Three bisinuess questions were asked and answered:
 
 ## Results of the analysis
    
-Results and discussion were published on Medium: https://medium.com/@shihaowen/dive-into-boston-and-seattle-airbnb-data-b4a9e79b740c
+Results and discussion were published on Medium: https://medium.com/@shihaowen/dive-into-boston-and-seattle-airbnb-data-b4a9e79b740c  
 In this project, I dived into the most recent Airbnb Boston and Seattle dataset and found many interesting phenomenom:
 - We gathered the Boston and Seattle Airbnb data, and compare the two dataset.
 - We established a machine learning model to predict the rental price for both cities.
