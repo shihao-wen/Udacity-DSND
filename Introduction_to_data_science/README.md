@@ -1,6 +1,4 @@
-# Project Title
-
-Dive Into Boston and Seattle Airbnb Data
+# Dive Into Boston and Seattle Airbnb Data
 
 ## Project Motivation
 
@@ -19,7 +17,7 @@ Three bisinuess questions were asked and answered:
    Dataset Link: http://insideairbnb.com/get-the-data.html
 
 ## Results of the analysis
-   
+
 Results and discussion were published on Medium: https://medium.com/@shihaowen/dive-into-boston-and-seattle-airbnb-data-b4a9e79b740c  
 In this project, I dived into the most recent Airbnb Boston and Seattle dataset and found many interesting phenomenom:
 - We gathered the Boston and Seattle Airbnb data, and compare the two dataset.
