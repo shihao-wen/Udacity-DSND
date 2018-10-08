@@ -1,0 +1,500 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# ML Pipeline Preparation\n",
+    "Follow the instructions below to help you create your ML pipeline.\n",
+    "### 1. Import libraries and load data from database.\n",
+    "- Import Python libraries\n",
+    "- Load dataset from database with [`read_sql_table`](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.read_sql_table.html)\n",
+    "- Define feature and target variables X and Y"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[nltk_data] Downloading package punkt to /root/nltk_data...\n",
+      "[nltk_data]   Unzipping tokenizers/punkt.zip.\n",
+      "[nltk_data] Downloading package wordnet to /root/nltk_data...\n",
+      "[nltk_data]   Unzipping corpora/wordnet.zip.\n"
+     ]
+    }
+   ],
+   "source": [
+    "# import libraries\n",
+    "import nltk\n",
+    "import re\n",
+    "nltk.download(['punkt', 'wordnet'])\n",
+    "import warnings\n",
+    "warnings.filterwarnings(\"ignore\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "from sqlalchemy import create_engine\n",
+    "from nltk.tokenize import word_tokenize\n",
+    "from nltk.stem import WordNetLemmatizer\n",
+    "from sklearn.multioutput import MultiOutputClassifier\n",
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "from sklearn.pipeline import Pipeline\n",
+    "from sklearn.metrics import confusion_matrix\n",
+    "from sklearn.model_selection import train_test_split, GridSearchCV\n",
+    "from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer\n",
+    "from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier\n",
+    "from sklearn.multiclass import OneVsRestClassifier\n",
+    "from sklearn.svm import LinearSVC\n",
+    "from sklearn.feature_extraction.text import TfidfVectorizer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# load data from database\n",
+    "engine = create_engine('sqlite:///FigureEight.db')\n",
+    "df = pd.read_sql_table('Message', engine)\n",
+    "X = df.message.values\n",
+    "y = df[df.columns[4:]].values"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 2. Write a tokenization function to process your text data"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def tokenize(text):\n",
+    "    text = re.sub(r\"[^a-zA-Z0-9]\", \" \", text.lower())\n",
+    "    tokens = word_tokenize(text)\n",
+    "    lemmatizer = WordNetLemmatizer()\n",
+    "\n",
+    "    clean_tokens = []\n",
+    "    for tok in tokens:\n",
+    "        clean_tok = lemmatizer.lemmatize(tok).lower().strip()\n",
+    "        clean_tokens.append(clean_tok)\n",
+    "    return clean_tokens"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 3. Build a machine learning pipeline\n",
+    "- You'll find the [MultiOutputClassifier](http://scikit-learn.org/stable/modules/generated/sklearn.multioutput.MultiOutputClassifier.html) helpful for predicting multiple target variables."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 47,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "pipeline = Pipeline([\n",
+    "        ('vect', CountVectorizer(tokenizer=tokenize)),\n",
+    "        ('tfidf', TfidfTransformer()),\n",
+    "        ('clf', MultiOutputClassifier(OneVsRestClassifier(LinearSVC(random_state = 0))))\n",
+    "    ])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 4. Train pipeline\n",
+    "- Split data into train and test sets\n",
+    "- Train pipeline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "CPU times: user 4.57 s, sys: 24 ms, total: 4.59 s\n",
+      "Wall time: 4.61 s\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%time\n",
+    "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)\n",
+    "pipeline.fit(X_train, y_train)\n",
+    "y_pred = pipeline.predict(X_test)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 5. Test your model\n",
+    "Report the f1 score, precision and recall on both the training set and the test set. You can use sklearn's `classification_report` function here. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "                        precision    recall  f1-score   support\n",
+      "\n",
+      "               related       0.85      0.92      0.88      4000\n",
+      "               request       0.76      0.59      0.66       928\n",
+      "                 offer       0.00      0.00      0.00        20\n",
+      "           aid_related       0.70      0.67      0.69      2175\n",
+      "          medical_help       0.55      0.29      0.38       413\n",
+      "      medical_products       0.66      0.26      0.38       258\n",
+      "     search_and_rescue       0.78      0.14      0.23       154\n",
+      "              security       0.25      0.01      0.02        98\n",
+      "              military       0.61      0.30      0.40       159\n",
+      "           child_alone       0.00      0.00      0.00         0\n",
+      "                 water       0.74      0.52      0.61       337\n",
+      "                  food       0.82      0.63      0.71       589\n",
+      "               shelter       0.78      0.49      0.60       504\n",
+      "              clothing       0.74      0.33      0.46        87\n",
+      "                 money       0.55      0.18      0.27       121\n",
+      "        missing_people       0.62      0.08      0.14        61\n",
+      "              refugees       0.58      0.21      0.31       155\n",
+      "                 death       0.75      0.42      0.54       232\n",
+      "             other_aid       0.44      0.22      0.29       678\n",
+      "infrastructure_related       0.37      0.11      0.17       327\n",
+      "             transport       0.73      0.23      0.35       244\n",
+      "             buildings       0.67      0.37      0.48       266\n",
+      "           electricity       0.68      0.24      0.35       114\n",
+      "                 tools       0.00      0.00      0.00        34\n",
+      "             hospitals       0.43      0.06      0.11        47\n",
+      "                 shops       0.00      0.00      0.00        24\n",
+      "           aid_centers       0.50      0.03      0.06        68\n",
+      "  other_infrastructure       0.36      0.08      0.13       217\n",
+      "       weather_related       0.79      0.68      0.73      1465\n",
+      "                floods       0.82      0.52      0.63       415\n",
+      "                 storm       0.74      0.60      0.66       482\n",
+      "                  fire       0.85      0.17      0.29        63\n",
+      "            earthquake       0.87      0.71      0.78       496\n",
+      "                  cold       0.65      0.31      0.42        97\n",
+      "         other_weather       0.46      0.13      0.21       275\n",
+      "         direct_report       0.69      0.52      0.59      1044\n",
+      "\n",
+      "           avg / total       0.72      0.59      0.63     16647\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "from sklearn.metrics import classification_report\n",
+    "target_names = list(df.columns[4:])\n",
+    "print(classification_report(y_test, y_pred, target_names = target_names))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 6. Improve your model\n",
+    "Use grid search to find better parameters. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "CPU times: user 10min 11s, sys: 408 ms, total: 10min 12s\n",
+      "Wall time: 10min 14s\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%time\n",
+    "pipeline = Pipeline([\n",
+    "        ('vect', CountVectorizer(tokenizer=tokenize)),\n",
+    "        ('tfidf', TfidfTransformer()),\n",
+    "        ('clf', MultiOutputClassifier(OneVsRestClassifier(LinearSVC(random_state = 0))))\n",
+    "    ])\n",
+    "parameters = {\n",
+    "              'tfidf__smooth_idf':[True, False],\n",
+    "              'clf__estimator__estimator__C': [1, 2, 5]\n",
+    "             }\n",
+    "\n",
+    "cv = GridSearchCV(pipeline, param_grid=parameters, scoring='precision_samples', cv = 5)\n",
+    "cv.fit(X_train, y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{'mean_fit_time': array([  9.59902716,   9.54202714,  10.81819673,  10.61851583,\n",
+       "         13.83010402,  14.0913167 ]),\n",
+       " 'std_fit_time': array([ 0.06164189,  0.03587641,  0.26698924,  0.06539297,  0.1486169 ,\n",
+       "         0.28766967]),\n",
+       " 'mean_score_time': array([ 1.72648811,  1.7171248 ,  1.73938971,  1.73277521,  1.73655233,\n",
+       "         1.7645227 ]),\n",
+       " 'std_score_time': array([ 0.02409359,  0.01187135,  0.0316698 ,  0.02184827,  0.01950085,\n",
+       "         0.03337127]),\n",
+       " 'param_clf__estimator__estimator__C': masked_array(data = [1 1 2 2 5 5],\n",
+       "              mask = [False False False False False False],\n",
+       "        fill_value = ?),\n",
+       " 'param_tfidf__smooth_idf': masked_array(data = [True False True False True False],\n",
+       "              mask = [False False False False False False],\n",
+       "        fill_value = ?),\n",
+       " 'params': [{'clf__estimator__estimator__C': 1, 'tfidf__smooth_idf': True},\n",
+       "  {'clf__estimator__estimator__C': 1, 'tfidf__smooth_idf': False},\n",
+       "  {'clf__estimator__estimator__C': 2, 'tfidf__smooth_idf': True},\n",
+       "  {'clf__estimator__estimator__C': 2, 'tfidf__smooth_idf': False},\n",
+       "  {'clf__estimator__estimator__C': 5, 'tfidf__smooth_idf': True},\n",
+       "  {'clf__estimator__estimator__C': 5, 'tfidf__smooth_idf': False}],\n",
+       " 'split0_test_score': array([ 0.6187321 ,  0.61908393,  0.59350158,  0.5933429 ,  0.55770828,\n",
+       "         0.55804283]),\n",
+       " 'split1_test_score': array([ 0.60627597,  0.60576613,  0.58382101,  0.58326832,  0.55470962,\n",
+       "         0.5542793 ]),\n",
+       " 'split2_test_score': array([ 0.6029076 ,  0.60281631,  0.58049357,  0.58052761,  0.54574659,\n",
+       "         0.54500224]),\n",
+       " 'split3_test_score': array([ 0.60797406,  0.60808539,  0.58509607,  0.58526677,  0.55350174,\n",
+       "         0.55282741]),\n",
+       " 'split4_test_score': array([ 0.61685486,  0.61678351,  0.58916614,  0.59027276,  0.55569283,\n",
+       "         0.55515206]),\n",
+       " 'mean_test_score': array([ 0.61054862,  0.61050675,  0.58641554,  0.58653549,  0.5534717 ,\n",
+       "         0.55306067]),\n",
+       " 'std_test_score': array([ 0.00616452,  0.00633159,  0.00450162,  0.00466237,  0.00410111,\n",
+       "         0.00437441]),\n",
+       " 'rank_test_score': array([1, 2, 4, 3, 5, 6], dtype=int32),\n",
+       " 'split0_train_score': array([ 0.72921035,  0.73004308,  0.73881961,  0.73943859,  0.74683674,\n",
+       "         0.74708611]),\n",
+       " 'split1_train_score': array([ 0.73378315,  0.73449026,  0.74317834,  0.7437226 ,  0.75086217,\n",
+       "         0.75124272]),\n",
+       " 'split2_train_score': array([ 0.73201861,  0.73245058,  0.74186212,  0.74259266,  0.74990882,\n",
+       "         0.74995798]),\n",
+       " 'split3_train_score': array([ 0.7318735 ,  0.73272201,  0.74168817,  0.74208471,  0.74863985,\n",
+       "         0.7488285 ]),\n",
+       " 'split4_train_score': array([ 0.73072152,  0.73170108,  0.741056  ,  0.74159002,  0.748467  ,\n",
+       "         0.74885095]),\n",
+       " 'mean_train_score': array([ 0.73152143,  0.7322814 ,  0.74132085,  0.74188572,  0.74894292,\n",
+       "         0.74919325]),\n",
+       " 'std_train_score': array([ 0.00151443,  0.00144559,  0.0014286 ,  0.00141346,  0.001369  ,\n",
+       "         0.00137662])}"
+      ]
+     },
+     "execution_count": 39,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "cv.cv_results_"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 7. Test your model\n",
+    "Show the accuracy, precision, and recall of the tuned model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "                        precision    recall  f1-score   support\n",
+      "\n",
+      "               related       0.86      0.91      0.88      4018\n",
+      "               request       0.78      0.62      0.69       918\n",
+      "                 offer       0.00      0.00      0.00        18\n",
+      "           aid_related       0.74      0.72      0.73      2162\n",
+      "          medical_help       0.65      0.29      0.41       415\n",
+      "      medical_products       0.67      0.31      0.42       262\n",
+      "     search_and_rescue       0.71      0.19      0.30       128\n",
+      "              security       0.17      0.01      0.02        94\n",
+      "              military       0.63      0.32      0.43       189\n",
+      "           child_alone       0.00      0.00      0.00         0\n",
+      "                 water       0.77      0.59      0.67       325\n",
+      "                  food       0.83      0.69      0.75       591\n",
+      "               shelter       0.77      0.59      0.67       435\n",
+      "              clothing       0.78      0.40      0.53        72\n",
+      "                 money       0.58      0.21      0.31       131\n",
+      "        missing_people       0.77      0.17      0.27        60\n",
+      "              refugees       0.64      0.26      0.37       168\n",
+      "                 death       0.76      0.44      0.56       225\n",
+      "             other_aid       0.46      0.22      0.30       688\n",
+      "infrastructure_related       0.43      0.09      0.15       351\n",
+      "             transport       0.74      0.23      0.34       222\n",
+      "             buildings       0.67      0.37      0.48       264\n",
+      "           electricity       0.73      0.26      0.39       102\n",
+      "                 tools       0.00      0.00      0.00        29\n",
+      "             hospitals       0.75      0.10      0.18        60\n",
+      "                 shops       0.00      0.00      0.00        27\n",
+      "           aid_centers       0.60      0.04      0.07        82\n",
+      "  other_infrastructure       0.25      0.05      0.08       219\n",
+      "       weather_related       0.80      0.71      0.76      1444\n",
+      "                floods       0.86      0.57      0.69       423\n",
+      "                 storm       0.72      0.62      0.67       465\n",
+      "                  fire       0.73      0.38      0.50        58\n",
+      "            earthquake       0.88      0.78      0.82       472\n",
+      "                  cold       0.57      0.26      0.36        95\n",
+      "         other_weather       0.51      0.14      0.22       296\n",
+      "         direct_report       0.73      0.54      0.62      1061\n",
+      "\n",
+      "           avg / total       0.74      0.61      0.65     16569\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "y_pred = cv.predict(X_test)\n",
+    "print(classification_report(y_test, y_pred, target_names = target_names))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 8. Try improving your model further. Here are a few ideas:\n",
+    "* try other machine learning algorithms\n",
+    "* add other features besides the TF-IDF"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 57,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "GridSearchCV(cv=None, error_score='raise',\n",
+       "       estimator=Pipeline(memory=None,\n",
+       "     steps=[('vect', CountVectorizer(analyzer='word', binary=False, decode_error='strict',\n",
+       "        dtype=<class 'numpy.int64'>, encoding='utf-8', input='content',\n",
+       "        lowercase=True, max_df=1.0, max_features=None, min_df=1,\n",
+       "        ngram_range=(1, 1), preprocessor=None, stop_words=None,\n",
+       "        strip...1,\n",
+       "            oob_score=False, random_state=0, verbose=0, warm_start=False),\n",
+       "           n_jobs=1))]),\n",
+       "       fit_params=None, iid=True, n_jobs=1,\n",
+       "       param_grid={'clf__estimator__n_estimators': [10]},\n",
+       "       pre_dispatch='2*n_jobs', refit=True, return_train_score='warn',\n",
+       "       scoring='f1_weighted', verbose=0)"
+      ]
+     },
+     "execution_count": 57,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "pipeline = Pipeline([\n",
+    "        ('vect', CountVectorizer(tokenizer=tokenize)),\n",
+    "        ('tfidf', TfidfTransformer()),\n",
+    "        ('clf', MultiOutputClassifier(RandomForestClassifier(max_depth = 10, random_state=0)))\n",
+    "    ])\n",
+    "parameters = {\n",
+    "              #'clf__estimator__learning_rate' : [0.1, 0.4],\n",
+    "              #'clf__estimator__max_depth': [3, 5],\n",
+    "              'clf__estimator__n_estimators' : [10]\n",
+    "             }\n",
+    "\n",
+    "# TODO: Import 'GridSearchCV', 'make_scorer', and any other necessary libraries\n",
+    "cv = GridSearchCV(pipeline, param_grid=parameters, scoring='f1_weighted')\n",
+    "cv.fit(X_train, y_train)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 9. Export your model as a pickle file"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### 10. Use this notebook to complete `train.py`\n",
+    "Use the template file attached in the Resources folder to write a script that runs the steps above to create a database and export a model based on a new dataset specified by the user."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.6.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
