@@ -1,6 +1,6 @@
 # Disaster Response Pipeline Project
 
-### Instructions:
+### Instructions: (Run run.py directly if DisasterResponse.db and claasifier.pkl already exist.)
 1. Run the following commands in the project's root directory to set up your database and model.
 
     - To run ETL pipeline that cleans data and stores in database

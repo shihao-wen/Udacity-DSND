@@ -13,7 +13,7 @@ Project Lists:
 
 5. Software Engineering
 
-6. Data Engineering(In progress)
+6. Data Engineering: [Disaster Response Pipeline Project](https://github.com/wenshihao1993/Udacity-DSND/tree/master/Data%20Engineering/Disaster%20Response%20Pipeline%20Project)
 
 7. Recommendation System  
 
