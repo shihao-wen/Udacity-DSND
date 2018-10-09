@@ -17,7 +17,7 @@ def load_data(messages_filepath, categories_filepath):
     df.drop('categories', axis = 1, inplace = True)
     df = pd.concat([df, categories], axis = 1)
     return df
-   
+
 def clean_data(df):
     df.drop_duplicates(subset = 'id', inplace = True)
     return df
@@ -37,12 +37,12 @@ def main():
 
         print('Cleaning data...')
         df = clean_data(df)
-        
+
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
         save_data(df, database_filepath)
-        
+
         print('Cleaned data saved to database!')
-    
+
     else:
         print('Please provide the filepaths of the messages and categories '\
               'datasets as the first and second argument respectively, as '\
