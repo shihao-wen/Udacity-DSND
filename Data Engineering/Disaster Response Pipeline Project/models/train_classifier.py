@@ -22,6 +22,14 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import LinearSVC
 
 def load_data(database_filepath):
+    '''
+    input:
+        database_filepath: File path where sql database was saved.
+    output:
+        X: Training message List.
+        Y: Training target.
+        category_names: Categorical name for labeling.
+    '''
     engine = create_engine('sqlite:///'+ database_filepath)
     df = pd.read_sql_table('FigureEight', engine)
     X = df.message.values
@@ -30,6 +38,12 @@ def load_data(database_filepath):
     return X, Y, category_names
 
 def tokenize(text):
+    '''
+    input:
+        text: Message data for tokenization.
+    output:
+        clean_tokens: Result list after tokenization.
+    '''
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
@@ -42,6 +56,12 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    input:
+        None
+    output:
+        cv: GridSearch model result.
+    '''
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -51,9 +71,6 @@ def build_model():
                 'tfidf__smooth_idf':[True, False],
                 'clf__estimator__estimator__C': [1, 2, 5]
              }
-
-
-
     cv = GridSearchCV(pipeline, param_grid=parameters, scoring='precision_samples', cv = 5)
     return cv
 
@@ -74,13 +91,13 @@ def main():
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-        
+
         print('Building model...')
         model = build_model()
-        
+
         print('Training model...')
         model.fit(X_train, Y_train)
-        
+
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 

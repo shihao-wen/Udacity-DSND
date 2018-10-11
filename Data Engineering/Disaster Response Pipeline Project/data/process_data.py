@@ -3,9 +3,25 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    '''
+    input:
+        messages_filepath: The path of messages dataset.
+        categories_filepath: The path of categories dataset.
+    output:
+        df: The merged dataset
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages, categories, left_on='id', right_on='id', how='outer')
+    return df
+
+def clean_data(df):
+    '''
+    input:
+        df: The merged dataset in previous step.
+    output:
+        df: Dataset after cleaning.
+    '''
     categories = df.categories.str.split(';', expand = True)
     row = categories.loc[0]
     category_colnames = row.apply(lambda x: x[:-2]).values.tolist()
@@ -16,9 +32,6 @@ def load_data(messages_filepath, categories_filepath):
         categories[column] = pd.to_numeric(categories[column])
     df.drop('categories', axis = 1, inplace = True)
     df = pd.concat([df, categories], axis = 1)
-    return df
-
-def clean_data(df):
     df.drop_duplicates(subset = 'id', inplace = True)
     return df
 
