@@ -9,13 +9,9 @@ from sqlalchemy import create_engine
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from sklearn.multioutput import MultiOutputClassifier
-import numpy as np
-import pandas as pd
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.externals import joblib
 from sklearn.metrics import classification_report, accuracy_score
 from sklearn.multiclass import OneVsRestClassifier
