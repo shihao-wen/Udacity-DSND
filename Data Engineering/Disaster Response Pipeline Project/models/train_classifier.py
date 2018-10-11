@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.externals import joblib
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import LinearSVC
 
@@ -48,15 +48,21 @@ def build_model():
         ('clf', MultiOutputClassifier(OneVsRestClassifier(LinearSVC(random_state = 0))))
     ])
     parameters = {
+                'tfidf__smooth_idf':[True, False],
+                'clf__estimator__estimator__C': [1, 2, 5]
              }
+
+
 
     cv = GridSearchCV(pipeline, param_grid=parameters, scoring='precision_samples', cv = 5)
     return cv
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    y_pred = model.predict(X_test)
-    print(classification_report(Y_test, y_pred, target_names = category_names))
-
+    Y_pred = model.predict(X_test)
+    print(classification_report(Y_test, Y_pred, target_names = category_names))
+    print('---------------------------------')
+    for i in range(Y_test.shape[1]):
+        print('%25s accuracy : %.2f' %(category_names[i], accuracy_score(Y_test[:,i], Y_pred[:,i])))
 
 def save_model(model, model_filepath):
     joblib.dump(model, model_filepath)
