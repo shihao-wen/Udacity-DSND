@@ -15,6 +15,6 @@ Project Lists:
 
 6. Data Engineering: [Disaster Response Pipeline Project](https://github.com/wenshihao1993/Udacity-DSND/tree/master/Data%20Engineering/Disaster%20Response%20Pipeline%20Project)
 
-7. Recommendation System  
+7. Recommendation System [Starbucks] 
 
 8. Capstone Projects  
