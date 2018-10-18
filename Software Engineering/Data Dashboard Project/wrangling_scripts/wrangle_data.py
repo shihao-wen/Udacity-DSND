@@ -15,70 +15,77 @@ def return_figures():
 
     """
 
-    # first chart plots arable land from 1990 to 2015 in top 10 economies 
+    # first chart plots arable land from 1990 to 2015 in top 10 economies
     # as a line chart
-    df.pd,re
-    graph_one = []    
+    df = pd.read_csv("data/starbucks.csv")
+
+    graph_one = []
+    x_val = df[df["purchase"] == 1]["V2"].tolist()
+    y_val = df[df["purchase"] == 1]["V3"].tolist()
     graph_one.append(
       go.Scatter(
-      x = [0, 1, 2, 3, 4, 5],
-      y = [0, 2, 4, 6, 8, 10],
-      mode = 'lines'
+      x = x_val,
+      y = y_val,
+      mode = 'markers'
       )
     )
 
-    layout_one = dict(title = 'Chart One',
-                xaxis = dict(title = 'x-axis label'),
-                yaxis = dict(title = 'y-axis label'),
+    layout_one = dict(title = 'Column "V2" vs "V3" in Purchase Group',
+                xaxis = dict(title = 'V2'),
+                yaxis = dict(title = 'V3'),
                 )
 
-# second chart plots ararble land for 2015 as a bar chart    
+# second chart plots ararble land for 2015 as a bar chart
     graph_two = []
-
+    x_val = df[df["purchase"] == 0]["V2"].tolist()
+    y_val = df[df["purchase"] == 0]["V3"].tolist()
     graph_two.append(
-      go.Bar(
-      x = ['a', 'b', 'c', 'd', 'e'],
-      y = [12, 9, 7, 5, 1],
+      go.Scatter(
+      x = x_val,
+      y = y_val,
+      mode = 'markers'
       )
     )
 
-    layout_two = dict(title = 'Chart Two',
-                xaxis = dict(title = 'x-axis label',),
-                yaxis = dict(title = 'y-axis label'),
+    layout_two = dict(title = 'Column "V2" vs "V3" in Non-Purchase Group',
+                xaxis = dict(title = 'V2'),
+                yaxis = dict(title = 'V3'),
                 )
 
 
 # third chart plots percent of population that is rural from 1990 to 2015
     graph_three = []
+
+    labels = df[df["purchase"] == 1].V5.value_counts().index.tolist()
+    values = df[df["purchase"] == 1].V5.value_counts().values.tolist()
+    colors = ['#BFB3FE', '#ee544c', '#1a81f4', '#D0F9B1']
     graph_three.append(
-      go.Scatter(
-      x = [5, 4, 3, 2, 1, 0],
-      y = [0, 2, 4, 6, 8, 10],
-      mode = 'lines'
-      )
+      go.Pie(labels=labels, values=values,
+                     hoverinfo='label+percent+name', textinfo='percent',
+                     textfont=dict(size=20),
+                     marker=dict(colors = colors,
+                     line=dict(color='#000000', width=2)))
     )
 
-    layout_three = dict(title = 'Chart Three',
-                xaxis = dict(title = 'x-axis label'),
-                yaxis = dict(title = 'y-axis label')
-                       )
-    
+    layout_three = dict(title = 'Column "V5" Distribution in Purchase Group')
+
+
 # fourth chart shows rural population vs arable land
     graph_four = []
-    
+
+    labels = df[df["purchase"] == 0].V5.value_counts().index.tolist()
+    values = df[df["purchase"] == 0].V5.value_counts().values.tolist()
+    colors = ['#BFB3FE', '#ee544c', '#1a81f4', '#D0F9B1']
     graph_four.append(
-      go.Scatter(
-      x = [20, 40, 60, 80],
-      y = [10, 20, 30, 40],
-      mode = 'markers'
-      )
+      go.Pie(labels=labels, values=values,
+                     hoverinfo='label+percent+name', textinfo='percent',
+                     textfont=dict(size=20),
+                     marker=dict(colors = colors,
+                     line=dict(color='#000000', width=2)))
     )
 
-    layout_four = dict(title = 'Chart Four',
-                xaxis = dict(title = 'x-axis label'),
-                yaxis = dict(title = 'y-axis label'),
-                )
-    
+    layout_four = dict(title = 'Column "V5" Distribution in Purchase Group')
+
     # append all charts to the figures list
     figures = []
     figures.append(dict(data=graph_one, layout=layout_one))
