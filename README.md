@@ -17,4 +17,4 @@ Project Lists:
 
 7. Recommendation System [Starbucks]
 
-8. Capstone Projects  
+8. Capstone Projects: [Investigating Customer Segmentation for Arvato Financial Services](https://github.com/wenshihao1993/Udacity-DSND/tree/master/Capstone%20Project/Capstone%20Project%201)

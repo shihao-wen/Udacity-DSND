@@ -6,7 +6,7 @@ The goal of this project is to predict which individuals are most likely to conv
 
 ## File Description
 
-- A Descriptive Jupyter Notebookl
+- A Descriptive Jupyter Notebook
 
 ## Results of the analysis
 
