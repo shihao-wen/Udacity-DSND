@@ -15,6 +15,6 @@ Project Lists:
 
 6. Data Engineering: [Disaster Response Pipeline Project](https://github.com/wenshihao1993/Udacity-DSND/tree/master/Data%20Engineering/Disaster%20Response%20Pipeline%20Project)
 
-7. Recommendation System [Starbucks]
+7. Recommendation System [IBM Recommandation System Project](https://github.com/wenshihao1993/Udacity-DSND/tree/master/Experimental%20Design%20%26%20Recommandations/IBM%20Recommendation%20System%20Project)
 
 8. Capstone Projects: [Investigating Customer Segmentation for Arvato Financial Services](https://github.com/wenshihao1993/Udacity-DSND/tree/master/Capstone%20Project/Arvato%20Capstone%20Project)
