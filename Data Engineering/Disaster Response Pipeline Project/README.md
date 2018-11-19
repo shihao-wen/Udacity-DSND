@@ -38,4 +38,4 @@ In this project, I apply skills I learned in Data Engineering Section to analyze
 ## Example
 Type in: We have a lot of problem at Delma 75 Avenue Albert Jode, those people need water and food.
 
-![Example](example.png)
+![Example](Example.png)
