@@ -1,6 +1,8 @@
 # Udacity-DSND
 Collection of Projects of Udacity Data Scientist Nanodegree.
 
+![Certificate](DSNC-Certificate.png)
+
 Project Lists:
 
 1. Machine Learning: [Finding Donors for CharityML](https://github.com/wenshihao1993/Udacity-DSND/tree/master/Machine%20Learning/Supervised%20Learning%20Project)
