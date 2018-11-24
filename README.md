@@ -1,7 +1,7 @@
 # Udacity-DSND
 Collection of Projects of Udacity Data Scientist Nanodegree.
 
-![Certificate](DSNC-Certificate.png)
+![Certificate](DSND-Certificate.png)
 
 Project Lists:
 
